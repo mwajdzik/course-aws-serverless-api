@@ -1,0 +1,45 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Allows users to compare themselves",
+    "version": "1.0",
+    "title": "compare-yourself"
+  },
+  "basePath": "/dev",
+  "schemes": [
+    "https"
+  ],
+  "paths": {
+    "/compare-yourself": {
+      "get": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response"
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseTemplates": {
+                "application/json": "{\"message\": \"compare-yourself\"}"
+              }
+            }
+          },
+          "requestTemplates": {
+            "application/json": "{\"statusCode\": 200}"
+          },
+          "passthroughBehavior": "when_no_match",
+          "timeoutInMillis": 29000,
+          "type": "mock"
+        }
+      }
+    }
+  }
+}

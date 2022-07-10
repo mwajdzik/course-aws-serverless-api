@@ -27,3 +27,37 @@ requests, you need to enable CORS support.
 
 [check](https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-cors.html)
 
+## Body Mapping Templates
+
+simply allow to control which data your action receives (e.g. Lambda)
+
+```json
+{
+  "person": {
+    "name": "Max",
+    "age": 28
+  },
+  "order": {
+    "id": "6asdf821ssa"
+  }
+}
+```
+
+to
+
+```json
+{
+  "personName": "Max",
+  "orderId": "6asdf821ssa"
+}
+```
+
+using:
+
+```json
+{
+  "personName": "$input.json('$.person.name')",
+  "orderId": "$input.json('$.order.id')"
+}
+```
+

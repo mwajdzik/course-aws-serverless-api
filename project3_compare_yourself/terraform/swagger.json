@@ -12,6 +12,9 @@
   "paths": {
     "/compare-yourself": {
       "post": {
+        "consumes": [
+          "application/json"
+        ],
         "produces": [
           "application/json"
         ],
@@ -29,7 +32,6 @@
           }
         },
         "x-amazon-apigateway-integration": {
-          "type": "aws",
           "httpMethod": "POST",
           "uri": "arn:aws:apigateway:us-west-2:lambda:path/2015-03-31/functions/${compare_yourself_store_data}/invocations",
           "responses": {
@@ -37,11 +39,18 @@
               "statusCode": "200",
               "responseParameters": {
                 "method.response.header.Access-Control-Allow-Origin": "'*'"
+              },
+              "responseTemplates": {
+                "application/json": "{\"your-age\": $input.json('$.age')}"
               }
             }
           },
-          "passthroughBehavior": "when_no_match",
-          "contentHandling": "CONVERT_TO_TEXT"
+          "requestTemplates": {
+            "application/json": "{\"age\" : $input.json('$.person.age')}"
+          },
+          "passthroughBehavior": "when_no_templates",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws"
         }
       },
       "options": {
@@ -71,7 +80,6 @@
           }
         },
         "x-amazon-apigateway-integration": {
-          "type": "mock",
           "responses": {
             "default": {
               "statusCode": "200",
@@ -85,7 +93,8 @@
           "requestTemplates": {
             "application/json": "{\"statusCode\": 200}"
           },
-          "passthroughBehavior": "when_no_match"
+          "passthroughBehavior": "when_no_match",
+          "type": "mock"
         }
       }
     }

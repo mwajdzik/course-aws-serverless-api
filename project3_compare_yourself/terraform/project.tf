@@ -21,6 +21,8 @@ data "template_file" "swagger_api" {
   template = file("./swagger.json")
   vars     = {
     compare_yourself_store_data : aws_lambda_function.compare_yourself_store_data.arn
+    compare_yourself_delete_data : aws_lambda_function.compare_yourself_delete_data.arn
+    compare_yourself_get_data : aws_lambda_function.compare_yourself_get_data.arn
   }
 }
 
@@ -108,11 +110,51 @@ resource "aws_lambda_function" "compare_yourself_store_data" {
   ]
 }
 
-resource "aws_lambda_permission" "allow_cloudwatch" {
+resource "aws_lambda_permission" "allow_api_gateway_compare_yourself_store_data" {
   statement_id  = "AllowExecutionFromApiGateway"
   action        = "lambda:InvokeFunction"
   principal     = "apigateway.amazonaws.com"
   function_name = aws_lambda_function.compare_yourself_store_data.function_name
+  source_arn    = "arn:aws:execute-api:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:*/*/*/*"
+}
+
+resource "aws_lambda_function" "compare_yourself_delete_data" {
+  function_name = "compare-yourself-delete-data"
+  description   = "Compare Yourself: delete data"
+  filename      = "${path.module}/../src/compare-yourself.zip"
+  handler       = "compare-yourself-delete-data.handler"
+  runtime       = "nodejs12.x"
+  role          = aws_iam_role.compare_yourself_lambda_role.arn
+  depends_on    = [
+    aws_iam_role_policy_attachment.attach_iam_policy_to_iam_role
+  ]
+}
+
+resource "aws_lambda_permission" "allow_api_gateway_compare_yourself_delete_data" {
+  statement_id  = "AllowExecutionFromApiGateway"
+  action        = "lambda:InvokeFunction"
+  principal     = "apigateway.amazonaws.com"
+  function_name = aws_lambda_function.compare_yourself_delete_data.function_name
+  source_arn    = "arn:aws:execute-api:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:*/*/*/*"
+}
+
+resource "aws_lambda_function" "compare_yourself_get_data" {
+  function_name = "compare-yourself-get-data"
+  description   = "Compare Yourself: get data"
+  filename      = "${path.module}/../src/compare-yourself.zip"
+  handler       = "compare-yourself-get-data.handler"
+  runtime       = "nodejs12.x"
+  role          = aws_iam_role.compare_yourself_lambda_role.arn
+  depends_on    = [
+    aws_iam_role_policy_attachment.attach_iam_policy_to_iam_role
+  ]
+}
+
+resource "aws_lambda_permission" "allow_api_gateway_compare_yourself_get_data" {
+  statement_id  = "AllowExecutionFromApiGateway"
+  action        = "lambda:InvokeFunction"
+  principal     = "apigateway.amazonaws.com"
+  function_name = aws_lambda_function.compare_yourself_get_data.function_name
   source_arn    = "arn:aws:execute-api:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:*/*/*/*"
 }
 

@@ -20,20 +20,28 @@
             "description": "200 response",
             "schema": {
               "$ref": "#/definitions/Empty"
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string"
+              }
             }
           }
         },
         "x-amazon-apigateway-integration": {
+          "type": "aws",
           "httpMethod": "POST",
           "uri": "arn:aws:apigateway:us-west-2:lambda:path/2015-03-31/functions/${compare_yourself_store_data}/invocations",
           "responses": {
             "default": {
-              "statusCode": "200"
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.Access-Control-Allow-Origin": "'*'"
+              }
             }
           },
           "passthroughBehavior": "when_no_match",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws"
+          "contentHandling": "CONVERT_TO_TEXT"
         }
       },
       "options": {
@@ -63,6 +71,7 @@
           }
         },
         "x-amazon-apigateway-integration": {
+          "type": "mock",
           "responses": {
             "default": {
               "statusCode": "200",
@@ -76,8 +85,7 @@
           "requestTemplates": {
             "application/json": "{\"statusCode\": 200}"
           },
-          "passthroughBehavior": "when_no_match",
-          "type": "mock"
+          "passthroughBehavior": "when_no_match"
         }
       }
     }

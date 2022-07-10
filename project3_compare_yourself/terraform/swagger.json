@@ -11,7 +11,32 @@
   ],
   "paths": {
     "/compare-yourself": {
-      "get": {
+      "post": {
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "schema": {
+              "$ref": "#/definitions/Empty"
+            }
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "httpMethod": "POST",
+          "uri": "arn:aws:apigateway:us-west-2:lambda:path/2015-03-31/functions/${compare_yourself_store_data}/invocations",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws"
+        }
+      },
+      "options": {
         "consumes": [
           "application/json"
         ],
@@ -20,15 +45,31 @@
         ],
         "responses": {
           "200": {
-            "description": "200 response"
+            "description": "200 response",
+            "schema": {
+              "$ref": "#/definitions/Empty"
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string"
+              },
+              "Access-Control-Allow-Methods": {
+                "type": "string"
+              },
+              "Access-Control-Allow-Headers": {
+                "type": "string"
+              }
+            }
           }
         },
         "x-amazon-apigateway-integration": {
           "responses": {
             "default": {
               "statusCode": "200",
-              "responseTemplates": {
-                "application/json": "{\"message\": \"compare-yourself\"}"
+              "responseParameters": {
+                "method.response.header.Access-Control-Allow-Methods": "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'",
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'"
               }
             }
           },
@@ -36,10 +77,15 @@
             "application/json": "{\"statusCode\": 200}"
           },
           "passthroughBehavior": "when_no_match",
-          "timeoutInMillis": 29000,
           "type": "mock"
         }
       }
+    }
+  },
+  "definitions": {
+    "Empty": {
+      "type": "object",
+      "title": "Empty Schema"
     }
   }
 }

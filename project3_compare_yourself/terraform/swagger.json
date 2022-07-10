@@ -18,6 +18,16 @@
         "produces": [
           "application/json"
         ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "PersonData",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PersonData"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "200 response",
@@ -31,7 +41,9 @@
             }
           }
         },
+        "x-amazon-apigateway-request-validator": "Validate body",
         "x-amazon-apigateway-integration": {
+          "type": "aws",
           "httpMethod": "POST",
           "uri": "arn:aws:apigateway:us-west-2:lambda:path/2015-03-31/functions/${compare_yourself_store_data}/invocations",
           "responses": {
@@ -49,8 +61,7 @@
             "application/json": "{\"age\" : $input.json('$.person.age')}"
           },
           "passthroughBehavior": "when_no_templates",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws"
+          "contentHandling": "CONVERT_TO_TEXT"
         }
       },
       "options": {
@@ -80,6 +91,7 @@
           }
         },
         "x-amazon-apigateway-integration": {
+          "type": "mock",
           "responses": {
             "default": {
               "statusCode": "200",
@@ -93,16 +105,50 @@
           "requestTemplates": {
             "application/json": "{\"statusCode\": 200}"
           },
-          "passthroughBehavior": "when_no_match",
-          "type": "mock"
+          "passthroughBehavior": "when_no_match"
         }
       }
     }
   },
   "definitions": {
+    "PersonData": {
+      "type": "object",
+      "required": [
+        "person"
+      ],
+      "properties": {
+        "person": {
+          "type": "object",
+          "properties": {
+            "age": {
+              "type": "integer"
+            },
+            "height": {
+              "type": "integer"
+            },
+            "income": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "age",
+            "height",
+            "income"
+          ]
+        }
+      },
+      "title": "PersonData",
+      "description": "Model for a person data"
+    },
     "Empty": {
       "type": "object",
       "title": "Empty Schema"
+    }
+  },
+  "x-amazon-apigateway-request-validators": {
+    "Validate body": {
+      "validateRequestParameters": false,
+      "validateRequestBody": true
     }
   }
 }

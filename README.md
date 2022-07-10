@@ -34,8 +34,9 @@ simply allow to control which data your action receives (e.g. Lambda)
 ```json
 {
   "person": {
-    "name": "Max",
-    "age": 28
+    "height": 180,
+    "age": 28,
+    "income": 5000
   },
   "order": {
     "id": "6asdf821ssa"

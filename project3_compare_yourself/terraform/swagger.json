@@ -57,7 +57,7 @@
             }
           },
           "requestTemplates": {
-            "application/json": "#set($inputRoot = $input.path('$.person'))\n{\n    \"age\" : $inputRoot.age,\n    \"height\" : $inputRoot.height\n}"
+            "application/json": "#set($inputRoot = $input.path('$.person')) {\"age\" : $inputRoot.age, \"height\" : $inputRoot.height, \"income\" : $inputRoot.income}"
           },
           "passthroughBehavior": "when_no_templates",
           "contentHandling": "CONVERT_TO_TEXT",

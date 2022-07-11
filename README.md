@@ -62,3 +62,15 @@ using:
 }
 ```
 
+## AWS SDK
+
+[https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/index.html](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/index.html)
+
+[https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/index.html](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/index.html)
+
+[https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/javascript_dynamodb_code_examples.html](https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/javascript_dynamodb_code_examples.html)
+
+## DynamoDB
+
+A primary key defines an item attribute with unique values.
+It's either just one attribute (partition key) or two attributes (partition + sort key).

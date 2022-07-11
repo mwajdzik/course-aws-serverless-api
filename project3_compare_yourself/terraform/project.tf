@@ -69,22 +69,9 @@ resource "aws_iam_policy" "iam_policy_for_compare_yourself_lambda" {
   name        = "aws_iam_policy_for_compare_yourself_lambda_role"
   description = "AWS IAM Policy for managing AWS lambda role"
   path        = "/"
-  policy      = <<EOF
-{
- "Version": "2012-10-17",
- "Statement": [
-   {
-     "Action": [
-       "logs:CreateLogGroup",
-       "logs:CreateLogStream",
-       "logs:PutLogEvents"
-     ],
-     "Resource": "arn:aws:logs:*:*:*",
-     "Effect": "Allow"
-   }
- ]
-}
-EOF
+  policy      = templatefile("templates/iam_policy_for_lambdas.json", {
+    compare_yourself_dynamodb_table = aws_dynamodb_table.compare_yourself_dynamodb_table.arn
+  })
 }
 
 resource "aws_iam_role_policy_attachment" "attach_iam_policy_to_iam_role" {
@@ -103,7 +90,7 @@ resource "aws_lambda_function" "compare_yourself_store_data" {
   description   = "Compare Yourself: store data"
   filename      = "${path.module}/../src/compare-yourself.zip"
   handler       = "compare-yourself-store-data.handler"
-  runtime       = "nodejs12.x"
+  runtime       = "nodejs14.x"
   role          = aws_iam_role.compare_yourself_lambda_role.arn
   depends_on    = [
     aws_iam_role_policy_attachment.attach_iam_policy_to_iam_role
@@ -123,7 +110,7 @@ resource "aws_lambda_function" "compare_yourself_delete_data" {
   description   = "Compare Yourself: delete data"
   filename      = "${path.module}/../src/compare-yourself.zip"
   handler       = "compare-yourself-delete-data.handler"
-  runtime       = "nodejs12.x"
+  runtime       = "nodejs14.x"
   role          = aws_iam_role.compare_yourself_lambda_role.arn
   depends_on    = [
     aws_iam_role_policy_attachment.attach_iam_policy_to_iam_role
@@ -143,7 +130,7 @@ resource "aws_lambda_function" "compare_yourself_get_data" {
   description   = "Compare Yourself: get data"
   filename      = "${path.module}/../src/compare-yourself.zip"
   handler       = "compare-yourself-get-data.handler"
-  runtime       = "nodejs12.x"
+  runtime       = "nodejs14.x"
   role          = aws_iam_role.compare_yourself_lambda_role.arn
   depends_on    = [
     aws_iam_role_policy_attachment.attach_iam_policy_to_iam_role
@@ -159,3 +146,21 @@ resource "aws_lambda_permission" "allow_api_gateway_compare_yourself_get_data" {
 }
 
 # ---
+
+resource "aws_dynamodb_table" "compare_yourself_dynamodb_table" {
+  name           = "CompareYourself"
+  billing_mode   = "PROVISIONED"
+  read_capacity  = 5
+  write_capacity = 5
+  hash_key       = "UserId"
+
+  attribute {
+    name = "UserId"
+    type = "S"
+  }
+
+  tags = {
+    Name        = "compare_yourself_dynamodb_table"
+    Environment = "dev"
+  }
+}

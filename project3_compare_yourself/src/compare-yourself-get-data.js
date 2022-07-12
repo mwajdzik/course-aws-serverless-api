@@ -2,7 +2,6 @@ const AWS = require('aws-sdk');
 const dynamoDb = new AWS.DynamoDB({region: 'us-west-2', apiVersion: '2012-08-10'});
 
 module.exports.handler = (event, context, callback) => {
-    const error = null;
     const type = event.type;
 
     if (type === 'all') {
@@ -13,7 +12,7 @@ module.exports.handler = (event, context, callback) => {
         dynamoDb.scan(params, function (err, data) {
             if (err) {
                 console.log("Error", err);
-                callback(error);
+                callback(err);
             } else {
                 const items = data.Items.map((i) => {
                     return {
@@ -38,7 +37,7 @@ module.exports.handler = (event, context, callback) => {
         dynamoDb.getItem(params, function (err, data) {
             if (err) {
                 console.log("Error", err);
-                callback(error);
+                callback(err);
             } else {
                 const item = {
                     age: +data.Item.Age.N,

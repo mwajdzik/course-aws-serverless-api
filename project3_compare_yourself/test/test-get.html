@@ -5,15 +5,17 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <script>
+        var type = 'all'
+
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', 'https://1xllj16z3c.execute-api.us-west-2.amazonaws.com/dev/compare-yourself');
+        xhr.open('GET', 'https://bq9msmqnk2.execute-api.us-west-2.amazonaws.com/dev/compare-yourself/' + type);
 
         xhr.onreadystatechange = function (event) {
             console.log(event.target.response);
         }
 
         xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.send(JSON.stringify({"person": {"age": 23, "height": 180, "income": 1000}}));
+        xhr.send();
     </script>
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Test</title>

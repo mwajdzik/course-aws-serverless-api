@@ -81,14 +81,14 @@ resource "aws_iam_role_policy_attachment" "attach_iam_policy_to_iam_role" {
 
 data "archive_file" "zip_code" {
   type        = "zip"
-  source_dir  = "${path.module}/../src/"
-  output_path = "${path.module}/../src/compare-yourself.zip"
+  source_dir  = "${path.module}/../lambdas/"
+  output_path = "${path.module}/../lambdas/compare-yourself.zip"
 }
 
 resource "aws_lambda_function" "compare_yourself_store_data" {
   function_name = "compare-yourself-store-data"
   description   = "Compare Yourself: store data"
-  filename      = "${path.module}/../src/compare-yourself.zip"
+  filename      = "${path.module}/../lambdas/compare-yourself.zip"
   handler       = "compare-yourself-store-data.handler"
   runtime       = "nodejs14.x"
   role          = aws_iam_role.compare_yourself_lambda_role.arn
@@ -108,7 +108,7 @@ resource "aws_lambda_permission" "allow_api_gateway_compare_yourself_store_data"
 resource "aws_lambda_function" "compare_yourself_delete_data" {
   function_name = "compare-yourself-delete-data"
   description   = "Compare Yourself: delete data"
-  filename      = "${path.module}/../src/compare-yourself.zip"
+  filename      = "${path.module}/../lambdas/compare-yourself.zip"
   handler       = "compare-yourself-delete-data.handler"
   runtime       = "nodejs14.x"
   role          = aws_iam_role.compare_yourself_lambda_role.arn
@@ -128,7 +128,7 @@ resource "aws_lambda_permission" "allow_api_gateway_compare_yourself_delete_data
 resource "aws_lambda_function" "compare_yourself_get_data" {
   function_name = "compare-yourself-get-data"
   description   = "Compare Yourself: get data"
-  filename      = "${path.module}/../src/compare-yourself.zip"
+  filename      = "${path.module}/../lambdas/compare-yourself.zip"
   handler       = "compare-yourself-get-data.handler"
   runtime       = "nodejs14.x"
   role          = aws_iam_role.compare_yourself_lambda_role.arn
@@ -163,4 +163,22 @@ resource "aws_dynamodb_table" "compare_yourself_dynamodb_table" {
     Name        = "compare_yourself_dynamodb_table"
     Environment = "dev"
   }
+}
+
+# ---
+
+resource "aws_cognito_user_pool" "compare_yourself_pool" {
+  name = "compare-yourself"
+
+  email_configuration {
+    from_email_address = "amw061@gmail.com"
+  }
+}
+
+resource "aws_cognito_user_pool_client" "compare_yourself_pool_client" {
+  name = "compare-yourself-client"
+
+  user_pool_id = aws_cognito_user_pool.compare_yourself_pool.id
+
+  generate_secret = false
 }

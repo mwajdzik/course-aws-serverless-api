@@ -3,22 +3,10 @@ import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
-import Box from '@material-ui/core/Box';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
+import MoneyIcon from '@material-ui/icons/Money';
 import Typography from '@material-ui/core/Typography';
 import {makeStyles} from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import {Link} from 'react-router-dom';
-
-function Copyright() {
-    return (
-        <Typography variant="body2" color="textSecondary" align="center">
-            {'Copyright © '}
-            <Link to="/">Your Website</Link> {new Date().getFullYear()}
-            {'.'}
-        </Typography>
-    );
-}
 
 const useStyles = makeStyles((theme) => ({
     '@global': {
@@ -38,28 +26,28 @@ const useStyles = makeStyles((theme) => ({
     },
     form: {
         width: '100%',
-        marginTop: theme.spacing(3),
+        marginTop: theme.spacing(1),
     },
     submit: {
         margin: theme.spacing(3, 0, 2),
     },
 }));
 
-export default function SignUp({onSignUp}) {
+export default function AddData({onAddData}) {
     const classes = useStyles();
 
-    const [username, setUsername] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const [age, setAge] = useState("");
+    const [height, setHeight] = useState("");
+    const [income, setIncome] = useState("");
 
     return (
         <Container component="main" maxWidth="xs">
             <div className={classes.paper}>
                 <Avatar className={classes.avatar}>
-                    <LockOutlinedIcon/>
+                    <MoneyIcon/>
                 </Avatar>
                 <Typography component="h1" variant="h5">
-                    Sign up
+                    Add Your Data
                 </Typography>
                 <form
                     onSubmit={(e) => e.preventDefault()}
@@ -69,66 +57,57 @@ export default function SignUp({onSignUp}) {
                         <Grid item xs={12} sm={12}>
                             <TextField
                                 onChange={(e) => {
-                                    setUsername(e.target.value)
+                                    setAge(e.target.value)
                                 }}
-                                autoComplete="username"
-                                name="username"
+                                autoComplete="age"
+                                name="age"
                                 variant="outlined"
                                 required
                                 fullWidth
-                                id="username"
-                                label="Userame"
+                                id="age"
+                                label="Age"
                                 autoFocus/>
                         </Grid>
                         <Grid item xs={12}>
                             <TextField
                                 onChange={(e) => {
-                                    setEmail(e.target.value)
+                                    setHeight(e.target.value)
                                 }}
                                 variant="outlined"
                                 required
                                 fullWidth
-                                id="email"
-                                label="Email Address"
-                                name="email"
-                                autoComplete="email"/>
+                                name="height"
+                                label="Height"
+                                type="height"
+                                id="height"/>
                         </Grid>
                         <Grid item xs={12}>
                             <TextField
                                 onChange={(e) => {
-                                    setPassword(e.target.value)
+                                    setIncome(e.target.value)
                                 }}
                                 variant="outlined"
                                 required
                                 fullWidth
-                                name="password"
-                                label="Password"
-                                type="password"
-                                id="password"
-                                autoComplete="current-password"/>
+                                name="income"
+                                label="Income"
+                                type="income"
+                                id="income"/>
                         </Grid>
-                    </Grid>
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        color="primary"
-                        className={classes.submit}
-                        onClick={() => {
-                            onSignUp(username, email, password);
-                        }}>
-                        Sign Up
-                    </Button>
-                    <Grid container justifyContent="flex-end">
-                        <Grid item>
-                            <Link to="/auth/signin">Already have an account? Sign in</Link>
-                        </Grid>
+                        <Button
+                            type="submit"
+                            fullWidth
+                            variant="contained"
+                            color="primary"
+                            className={classes.submit}
+                            onClick={() => {
+                                onAddData(age, height, income);
+                            }}>
+                            Add
+                        </Button>
                     </Grid>
                 </form>
             </div>
-            <Box mt={5}>
-                <Copyright/>
-            </Box>
         </Container>
     );
 }

@@ -74,3 +74,9 @@ using:
 
 A primary key defines an item attribute with unique values.
 It's either just one attribute (partition key) or two attributes (partition + sort key).
+
+## Amazon Cognito Identity SDK for JavaScript
+
+[https://github.com/aws-amplify/amplify-js/tree/master/packages/amazon-cognito-identity-js](https://github.com/aws-amplify/amplify-js/tree/master/packages/amazon-cognito-identity-js)
+
+[https://www.npmjs.com/package/amazon-cognito-identity-js](https://www.npmjs.com/package/amazon-cognito-identity-js)

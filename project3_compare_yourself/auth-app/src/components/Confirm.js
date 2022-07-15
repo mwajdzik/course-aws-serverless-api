@@ -45,12 +45,11 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function SignUp({onSignUp}) {
+export default function Confirm({onConfirm}) {
     const classes = useStyles();
 
     const [username, setUsername] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const [code, setCode] = useState("");
 
     return (
         <Container component="main" maxWidth="xs">
@@ -80,32 +79,19 @@ export default function SignUp({onSignUp}) {
                                 label="Userame"
                                 autoFocus/>
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid item xs={12} sm={12}>
                             <TextField
                                 onChange={(e) => {
-                                    setEmail(e.target.value)
+                                    setCode(e.target.value)
                                 }}
+                                autoComplete="code"
+                                name="code"
                                 variant="outlined"
                                 required
                                 fullWidth
-                                id="email"
-                                label="Email Address"
-                                name="email"
-                                autoComplete="email"/>
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField
-                                onChange={(e) => {
-                                    setPassword(e.target.value)
-                                }}
-                                variant="outlined"
-                                required
-                                fullWidth
-                                name="password"
-                                label="Password"
-                                type="password"
-                                id="password"
-                                autoComplete="current-password"/>
+                                id="code"
+                                label="Confirmation Code"
+                                autoFocus/>
                         </Grid>
                     </Grid>
                     <Button
@@ -115,9 +101,9 @@ export default function SignUp({onSignUp}) {
                         color="primary"
                         className={classes.submit}
                         onClick={() => {
-                            onSignUp(username, email, password);
+                            onConfirm(username, code);
                         }}>
-                        Sign Up
+                        Confirm
                     </Button>
                     <Grid container justifyContent="flex-end">
                         <Grid item>

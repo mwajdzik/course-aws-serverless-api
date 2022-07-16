@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Redirect, Route, Router, Switch} from 'react-router-dom';
-import {createBrowserHistory} from "history";
+import {BrowserRouter, Route, Switch} from 'react-router-dom';
 import {createGenerateClassName, StylesProvider} from '@material-ui/core/styles';
 import {AuthenticationDetails, CognitoUser, CognitoUserAttribute, CognitoUserPool} from "amazon-cognito-identity-js";
 import Signin from "./components/Signin";
@@ -9,12 +8,11 @@ import Confirm from "./components/Confirm";
 import Header from "./components/Header";
 import AddData from "./components/AddData";
 import Dashboard from "./components/Dashboard";
-
-const history = createBrowserHistory();
+import compareYourselfApi from './api/compare-yourself-api';
 
 const poolData = {
-    UserPoolId: 'us-east-1_XRYUy2SJw',
-    ClientId: '645lu077qun0t1jbtn2mgfdafs'
+    UserPoolId: 'us-west-2_Yedy3Sv7q',
+    ClientId: '2gje8cfuvcllig1l85h0k1h4l5'
 };
 
 const userPool = new CognitoUserPool(poolData);
@@ -39,7 +37,7 @@ const onSignUp = (username, email, password) => {
 
         const cognitoUser = result.user;
         console.log('username is ' + cognitoUser.getUsername());
-        history.push("/auth/confirm")
+        // history.push("/auth/confirm")
     });
 }
 
@@ -57,7 +55,7 @@ const onConfirm = (username, code) => {
         }
 
         console.log('result is ' + result);
-        history.push("/auth/signin")
+        // history.push("/auth/signin")
     });
 }
 
@@ -73,7 +71,8 @@ const onSignIn = (username, password, callback) => {
         onSuccess: function (result) {
             const accessToken = result.getAccessToken().getJwtToken();
             console.log('Access Token: ' + accessToken);
-            history.push("/dashboard");
+            console.log('ID Token: ' + result.getIdToken().getJwtToken());
+            // history.push("/dashboard");
 
             callback();
         },
@@ -95,6 +94,7 @@ const getAuthenticatedUser = () => {
                 return;
             }
             console.log('session validity: ' + session.isValid());
+            console.log('session id: ' + session.getIdToken());
 
             // NOTE: getSession must be called to authenticate user before calling getUserAttributes
             cognitoUser.getUserAttributes(function (err, attributes) {
@@ -103,29 +103,28 @@ const getAuthenticatedUser = () => {
                     console.log(err);
                 } else {
                     // Do something with attributes
-                    console.log(attributes);
+                    // console.log(attributes);
+                    return cognitoUser
                 }
             });
         });
-    } else {
-        return <div>Not logged in!</div>
     }
-
-    return <div>OK</div>
 }
 
 const App = () => {
     const [isSignedIn, setIsSignedIn] = useState(false);
 
     useEffect(() => {
+        console.log(getAuthenticatedUser());
+
         if (isSignedIn) {
-            history.push('/dashboard');
+            //history.push('/dashboard');
         }
     }, [isSignedIn]);
 
     return <div>
         <StylesProvider generateClassName={generateClassName}>
-            <Router history={history}>
+            <BrowserRouter>
                 <Header isSignedIn={isSignedIn}
                         onSignOut={() => {
                             setIsSignedIn(false);
@@ -136,12 +135,36 @@ const App = () => {
 
                 <Switch>
                     <Route path="/dashboard">
-                        {!isSignedIn && <Redirect to="/"/>}
-                        <Dashboard/>
+                        {/*{!isSignedIn && <Redirect to="/"/>}*/}
+                        <Dashboard onDelete={() => {
+                            console.log('Delete')
+                        }}/>
                     </Route>
                     <Route path="/add">
-                        {!isSignedIn && <Redirect to="/"/>}
-                        <AddData/>
+                        {/*{!isSignedIn && <Redirect to="/"/>}*/}
+                        <AddData onAddData={(age, height, income) => {
+                            userPool.getCurrentUser().getSession(async (err, session) => {
+                                if (err) {
+                                    console.log(err);
+                                    return;
+                                }
+
+                                const payload = {
+                                    person: {
+                                        age: +age, height: +height, income: +income
+                                    }
+                                }
+
+                                const headers = {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': session.getIdToken().getJwtToken()
+                                }
+
+                                const response = await compareYourselfApi.post('/compare-yourself', payload, {headers});
+                                console.log(response);
+                            });
+                        }
+                        }/>
                     </Route>
                     <Route path="/auth/signin">
                         <Signin onSignIn={(username, password) => {
@@ -160,7 +183,7 @@ const App = () => {
                         Sign in to add and see your data!
                     </Route>
                 </Switch>
-            </Router>
+            </BrowserRouter>
         </StylesProvider>
     </div>
 };

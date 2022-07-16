@@ -8,7 +8,12 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import {makeStyles} from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import {Link} from 'react-router-dom';
+import {Link, useHistory} from 'react-router-dom';
+import {CognitoUser} from "amazon-cognito-identity-js";
+import {Collapse} from "@material-ui/core";
+import {Alert, AlertTitle} from "@material-ui/lab";
+import IconButton from "@material-ui/core/IconButton";
+import CloseIcon from "@material-ui/icons/Close";
 
 function Copyright() {
     return (
@@ -39,26 +44,34 @@ const useStyles = makeStyles((theme) => ({
     form: {
         width: '100%',
         marginTop: theme.spacing(3),
+        marginBottom: theme.spacing(3),
+    },
+    Alert: {
+        marginBottom: theme.spacing(3),
     },
     submit: {
         margin: theme.spacing(3, 0, 2),
     },
 }));
 
-export default function Confirm({onConfirm}) {
+export default function Confirm({userPool}) {
     const classes = useStyles();
+    const history = useHistory();
 
     const [username, setUsername] = useState("");
     const [code, setCode] = useState("");
 
+    const [errorOpened, setErrorOpened] = React.useState(true);
+    const [error, setError] = useState("");
+
     return (
-        <Container component="main" maxWidth="xs">
+        <Container component="main" maxWidth="sm">
             <div className={classes.paper}>
                 <Avatar className={classes.avatar}>
                     <LockOutlinedIcon/>
                 </Avatar>
                 <Typography component="h1" variant="h5">
-                    Sign up
+                    Confirm Code
                 </Typography>
                 <form
                     onSubmit={(e) => e.preventDefault()}
@@ -101,7 +114,19 @@ export default function Confirm({onConfirm}) {
                         color="primary"
                         className={classes.submit}
                         onClick={() => {
-                            onConfirm(username, code);
+                            const userData = {Username: username, Pool: userPool};
+                            const cognitoUser = new CognitoUser(userData);
+
+                            cognitoUser.confirmRegistration(code, true, function (err, result) {
+                                if (err) {
+                                    setError(err.message || JSON.stringify(err));
+                                    setErrorOpened(true);
+                                    return;
+                                }
+
+                                console.log('Result: ' + result);
+                                history.push("/auth/signin")
+                            });
                         }}>
                         Confirm
                     </Button>
@@ -112,6 +137,20 @@ export default function Confirm({onConfirm}) {
                     </Grid>
                 </form>
             </div>
+
+            {error ? <Collapse in={errorOpened}>
+                <Alert severity="error" className={classes.Alert} action={
+                    <IconButton aria-label="close" color="inherit" size="small" onClick={() => {
+                        setError("");
+                        setErrorOpened(false);
+                    }}>
+                        <CloseIcon fontSize="inherit"/>
+                    </IconButton>
+                }>
+                    <AlertTitle>Error</AlertTitle>{error}
+                </Alert>
+            </Collapse> : null}
+
             <Box mt={5}>
                 <Copyright/>
             </Box>

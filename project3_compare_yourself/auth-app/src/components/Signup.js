@@ -8,7 +8,12 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import {makeStyles} from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import {Link} from 'react-router-dom';
+import {Link, useHistory} from 'react-router-dom';
+import {CognitoUserAttribute} from "amazon-cognito-identity-js";
+import {Alert, AlertTitle} from "@material-ui/lab";
+import {Collapse} from "@material-ui/core";
+import IconButton from "@material-ui/core/IconButton";
+import CloseIcon from '@material-ui/icons/Close';
 
 function Copyright() {
     return (
@@ -39,21 +44,29 @@ const useStyles = makeStyles((theme) => ({
     form: {
         width: '100%',
         marginTop: theme.spacing(3),
+        marginBottom: theme.spacing(3),
+    },
+    Alert: {
+        marginBottom: theme.spacing(3),
     },
     submit: {
         margin: theme.spacing(3, 0, 2),
     },
 }));
 
-export default function SignUp({onSignUp}) {
+export default function SignUp({userPool}) {
     const classes = useStyles();
+    const history = useHistory();
 
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
+    const [errorOpened, setErrorOpened] = React.useState(true);
+    const [error, setError] = useState("");
+
     return (
-        <Container component="main" maxWidth="xs">
+        <Container component="main" maxWidth="sm">
             <div className={classes.paper}>
                 <Avatar className={classes.avatar}>
                     <LockOutlinedIcon/>
@@ -108,15 +121,23 @@ export default function SignUp({onSignUp}) {
                                 autoComplete="current-password"/>
                         </Grid>
                     </Grid>
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        color="primary"
-                        className={classes.submit}
-                        onClick={() => {
-                            onSignUp(username, email, password);
-                        }}>
+                    <Button type="submit" fullWidth variant="contained"
+                            color="primary" className={classes.submit}
+                            onClick={() => {
+                                const dataEmail = {Name: 'email', Value: email};
+                                const attributeEmail = new CognitoUserAttribute(dataEmail);
+
+                                userPool.signUp(username, password, [attributeEmail], null, (err, result) => {
+                                    if (err) {
+                                        setError(err.message || JSON.stringify(err));
+                                        setErrorOpened(true);
+                                        return;
+                                    }
+
+                                    console.log(`Welcome ${result.user.getUsername()}!`);
+                                    history.push("/auth/confirm");
+                                });
+                            }}>
                         Sign Up
                     </Button>
                     <Grid container justifyContent="flex-end">
@@ -126,6 +147,20 @@ export default function SignUp({onSignUp}) {
                     </Grid>
                 </form>
             </div>
+
+            {error ? <Collapse in={errorOpened}>
+                <Alert severity="error" className={classes.Alert} action={
+                    <IconButton aria-label="close" color="inherit" size="small" onClick={() => {
+                        setError("");
+                        setErrorOpened(false);
+                    }}>
+                        <CloseIcon fontSize="inherit"/>
+                    </IconButton>
+                }>
+                    <AlertTitle>Error</AlertTitle>{error}
+                </Alert>
+            </Collapse> : null}
+
             <Box mt={5}>
                 <Copyright/>
             </Box>

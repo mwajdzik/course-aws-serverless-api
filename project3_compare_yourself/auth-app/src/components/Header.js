@@ -82,14 +82,14 @@ export default function Header({isSignedIn, onSignOut}) {
                         Compare Yourself
                     </Typography>
                     <Box component="span" sx={{p: 2, border: '1px dashed grey'}}>
-                        <Button
+                        {!isSignedIn ? <Button
                             color="primary"
                             variant="outlined"
                             className={classes.link}
                             component={RouterLink}
                             to="/auth/signup">
                             Signup
-                        </Button>
+                        </Button> : null}
                         <Button
                             color="primary"
                             variant="outlined"

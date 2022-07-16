@@ -36,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function Dashboard({onDelete}) {
+export default function Dashboard({}) {
     const classes = useStyles();
 
     const items = [
@@ -55,7 +55,7 @@ export default function Dashboard({onDelete}) {
             </ListItemAvatar>
             <ListItemText primary={`Age: ${item.age}, Height: ${item.height}, Income: ${item.income}`}/>
             <ListItemSecondaryAction>
-                <IconButton edge="end" aria-label="delete" onClick={() => onDelete()}>
+                <IconButton edge="end" aria-label="delete" onClick={() => console.log("delete")}>
                     <DeleteIcon/>
                 </IconButton>
             </ListItemSecondaryAction>

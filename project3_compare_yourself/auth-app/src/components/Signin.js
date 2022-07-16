@@ -7,7 +7,12 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import {makeStyles} from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import {Link} from 'react-router-dom';
+import {Link, useHistory} from 'react-router-dom';
+import {Collapse} from "@material-ui/core";
+import {Alert, AlertTitle} from "@material-ui/lab";
+import IconButton from "@material-ui/core/IconButton";
+import CloseIcon from "@material-ui/icons/Close";
+import {AuthenticationDetails, CognitoUser} from "amazon-cognito-identity-js";
 
 const useStyles = makeStyles((theme) => ({
     '@global': {
@@ -28,26 +33,34 @@ const useStyles = makeStyles((theme) => ({
     form: {
         width: '100%',
         marginTop: theme.spacing(1),
+        marginBottom: theme.spacing(3),
+    },
+    Alert: {
+        marginBottom: theme.spacing(3),
     },
     submit: {
         margin: theme.spacing(3, 0, 2),
     },
 }));
 
-export default function SignIn({onSignIn}) {
+export default function SignIn({userPool, callback}) {
     const classes = useStyles();
+    const history = useHistory();
 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
+    const [errorOpened, setErrorOpened] = React.useState(true);
+    const [error, setError] = useState("");
+
     return (
-        <Container component="main" maxWidth="xs">
+        <Container component="main" maxWidth="sm">
             <div className={classes.paper}>
                 <Avatar className={classes.avatar}>
                     <LockOutlinedIcon/>
                 </Avatar>
                 <Typography component="h1" variant="h5">
-                    Sign in
+                    Sign In
                 </Typography>
                 <form
                     onSubmit={(e) => e.preventDefault()}
@@ -89,7 +102,21 @@ export default function SignIn({onSignIn}) {
                             color="primary"
                             className={classes.submit}
                             onClick={() => {
-                                onSignIn(username, password);
+                                const authenticationData = {Username: username, Password: password};
+                                const authenticationDetails = new AuthenticationDetails(authenticationData);
+                                const cognitoUser = new CognitoUser({Username: username, Pool: userPool});
+
+                                cognitoUser.authenticateUser(authenticationDetails, {
+                                    onSuccess: function (result) {
+                                        console.log('ID Token: ' + result.getIdToken().getJwtToken());
+                                        history.push("/dashboard");
+                                        callback();
+                                    },
+                                    onFailure: function (err) {
+                                        setError(err.message || JSON.stringify(err));
+                                        setErrorOpened(true);
+                                    },
+                                });
                             }}>
                             Sign In
                         </Button>
@@ -101,6 +128,19 @@ export default function SignIn({onSignIn}) {
                     </Grid>
                 </form>
             </div>
+
+            {error ? <Collapse in={errorOpened}>
+                <Alert severity="error" className={classes.Alert} action={
+                    <IconButton aria-label="close" color="inherit" size="small" onClick={() => {
+                        setError("");
+                        setErrorOpened(false);
+                    }}>
+                        <CloseIcon fontSize="inherit"/>
+                    </IconButton>
+                }>
+                    <AlertTitle>Error</AlertTitle>{error}
+                </Alert>
+            </Collapse> : null}
         </Container>
     );
 }

@@ -109,7 +109,7 @@ export default function SignIn({userPool, callback}) {
                                 cognitoUser.authenticateUser(authenticationDetails, {
                                     onSuccess: function (result) {
                                         console.log('ID Token: ' + result.getIdToken().getJwtToken());
-                                        history.push("/dashboard");
+                                        history.push("/");
                                         callback();
                                     },
                                     onFailure: function (err) {

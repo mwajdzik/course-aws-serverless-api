@@ -7,6 +7,7 @@ import MoneyIcon from '@material-ui/icons/Money';
 import Typography from '@material-ui/core/Typography';
 import {makeStyles} from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import compareYourselfApi from '../api/compare-yourself-api';
 
 const useStyles = makeStyles((theme) => ({
     '@global': {
@@ -33,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function AddData({onAddData}) {
+export default function AddData({userPool, callback}) {
     const classes = useStyles();
 
     const [age, setAge] = useState("");
@@ -101,7 +102,28 @@ export default function AddData({onAddData}) {
                             color="primary"
                             className={classes.submit}
                             onClick={() => {
-                                onAddData(age, height, income);
+                                userPool.getCurrentUser().getSession(async (err, session) => {
+                                    if (err) {
+                                        console.log(err);
+                                        return;
+                                    }
+
+                                    const payload = {
+                                        person: {
+                                            age: +age, height: +height, income: +income
+                                        }
+                                    }
+
+                                    const headers = {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': session.getIdToken().getJwtToken()
+                                    }
+
+                                    const response = await compareYourselfApi.post('/dev/compare-yourself', payload, {headers});
+                                    console.log(response);
+
+                                    callback();
+                                });
                             }}>
                             Add
                         </Button>

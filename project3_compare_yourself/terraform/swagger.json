@@ -48,6 +48,7 @@
         ],
         "x-amazon-apigateway-request-validator": "Validate body",
         "x-amazon-apigateway-integration": {
+          "type": "aws",
           "httpMethod": "POST",
           "uri": "arn:aws:apigateway:us-west-2:lambda:path/2015-03-31/functions/${compare_yourself_store_data}/invocations",
           "responses": {
@@ -65,13 +66,20 @@
             "application/json": "#set($inputRoot = $input.path('$.person')) {\"userId\" : \"$context.authorizer.claims.sub\", \"age\" : $inputRoot.age, \"height\" : $inputRoot.height, \"income\" : $inputRoot.income}"
           },
           "passthroughBehavior": "when_no_templates",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws"
+          "contentHandling": "CONVERT_TO_TEXT"
         }
       },
       "delete": {
         "produces": [
           "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "accessToken",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          }
         ],
         "responses": {
           "200": {
@@ -91,7 +99,9 @@
             "cognito_authorizer": []
           }
         ],
+        "x-amazon-apigateway-request-validator": "Validate query string parameters and headers",
         "x-amazon-apigateway-integration": {
+          "type": "aws",
           "httpMethod": "POST",
           "uri": "arn:aws:apigateway:us-west-2:lambda:path/2015-03-31/functions/${compare_yourself_delete_data}/invocations",
           "responses": {
@@ -102,9 +112,11 @@
               }
             }
           },
+          "requestTemplates": {
+            "application/json": "{\"userId\" : \"$context.authorizer.claims.sub\"}"
+          },
           "passthroughBehavior": "when_no_match",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws"
+          "contentHandling": "CONVERT_TO_TEXT"
         }
       },
       "options": {
@@ -134,6 +146,7 @@
           }
         },
         "x-amazon-apigateway-integration": {
+          "type": "mock",
           "responses": {
             "default": {
               "statusCode": "200",
@@ -147,8 +160,7 @@
           "requestTemplates": {
             "application/json": "{\"statusCode\": 200}"
           },
-          "passthroughBehavior": "when_no_match",
-          "type": "mock"
+          "passthroughBehavior": "when_no_match"
         }
       }
     },
@@ -166,6 +178,12 @@
             "in": "path",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "accessToken",
+            "in": "query",
+            "required": true,
+            "type": "string"
           }
         ],
         "responses": {
@@ -186,7 +204,9 @@
             "cognito_authorizer": []
           }
         ],
+        "x-amazon-apigateway-request-validator": "Validate query string parameters and headers",
         "x-amazon-apigateway-integration": {
+          "type": "aws",
           "httpMethod": "POST",
           "uri": "arn:aws:apigateway:us-west-2:lambda:path/2015-03-31/functions/${compare_yourself_get_data}/invocations",
           "responses": {
@@ -198,11 +218,10 @@
             }
           },
           "requestTemplates": {
-            "application/json": "{\n\"type\": \"$input.params('type')\"\n}"
+            "application/json": "{\"type\": \"$input.params('type')\",\"accessToken\": \"$input.params('accessToken')\"}"
           },
           "passthroughBehavior": "when_no_templates",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws"
+          "contentHandling": "CONVERT_TO_TEXT"
         }
       },
       "options": {
@@ -240,6 +259,7 @@
           }
         },
         "x-amazon-apigateway-integration": {
+          "type": "mock",
           "responses": {
             "default": {
               "statusCode": "200",
@@ -253,8 +273,7 @@
           "requestTemplates": {
             "application/json": "{\"statusCode\": 200}"
           },
-          "passthroughBehavior": "when_no_match",
-          "type": "mock"
+          "passthroughBehavior": "when_no_match"
         }
       }
     }
@@ -312,6 +331,10 @@
     "Validate body": {
       "validateRequestParameters": false,
       "validateRequestBody": true
+    },
+    "Validate query string parameters and headers": {
+      "validateRequestParameters": true,
+      "validateRequestBody": false
     }
   }
 }

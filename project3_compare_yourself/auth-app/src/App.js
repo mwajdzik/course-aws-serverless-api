@@ -6,8 +6,9 @@ import Signin from "./components/Signin";
 import Signup from "./components/Signup";
 import Confirm from "./components/Confirm";
 import Header from "./components/Header";
-import AddData from "./components/AddData";
 import Dashboard from "./components/Dashboard";
+import compareYourselfApi from './api/compare-yourself-api';
+import AddData from "./components/AddData";
 
 const userPool = new CognitoUserPool({
     UserPoolId: 'us-west-2_Yedy3Sv7q',
@@ -18,37 +19,37 @@ const generateClassName = createGenerateClassName({
     productionPrefix: 'au'
 });
 
-const getAuthenticatedUser = () => {
-    const cognitoUser = userPool.getCurrentUser();
+const retrieveItems = (setItems) => {
+    const currentUser = userPool.getCurrentUser();
 
-    if (cognitoUser != null) {
-        cognitoUser.getSession(function (err, session) {
+    if (currentUser) {
+        currentUser.getSession(async (err, session) => {
             if (err) {
-                alert("!!! " + (err.message || JSON.stringify(err)));
-                return;
+                setItems([]);
             }
 
-            cognitoUser.getUserAttributes(function (err, attributes) {
-                if (err) {
-                    // Handle error
-                    alert("!!! " + (err.message || JSON.stringify(err)));
-                    return;
-                }
-
-                console.log(attributes);
+            const result = await compareYourselfApi.get('/dev/compare-yourself/all?accessToken=' + session.getAccessToken().getJwtToken(), {
+                headers: {'Authorization': session.getIdToken().getJwtToken()}
             });
+
+            console.log(result.data);
+            setItems(result.data);
         });
+    } else {
+        setItems([]);
     }
 }
 
 const App = () => {
     const [isSignedIn, setIsSignedIn] = useState(false);
+    const [dashboardItems, setDashboardItems] = useState([]);
 
     useEffect(() => {
-        console.log("useEffect " + isSignedIn);
+        console.log("signed in: " + isSignedIn);
 
         if (isSignedIn) {
-            //history.push('/dashboard');
+            retrieveItems((items) =>
+                setDashboardItems(items));
         }
     }, [isSignedIn]);
 
@@ -58,19 +59,14 @@ const App = () => {
                 <Header isSignedIn={isSignedIn}
                         onSignOut={() => {
                             setIsSignedIn(false);
+                            setDashboardItems([]);
                             userPool.getCurrentUser().signOut();
                         }}/>
                 <Switch>
-                    <Route path="/dashboard">
-                        {!isSignedIn && <Redirect to="/"/>}
-                        <Dashboard userPool={userPool}/>
-                    </Route>
-                    <Route path="/add">
-                        {!isSignedIn && <Redirect to="/"/>}
-                        <AddData userPool={userPool}/>
-                    </Route>
                     <Route path="/auth/signin">
-                        <Signin userPool={userPool} callback={() => setIsSignedIn(true)}/>
+                        <Signin userPool={userPool} callback={() => {
+                            setIsSignedIn(true)
+                        }}/>
                     </Route>
                     <Route path="/auth/confirm">
                         <Confirm userPool={userPool}/>
@@ -79,6 +75,15 @@ const App = () => {
                         <Signup userPool={userPool}/>
                     </Route>
                     <Route path="/">
+                        {!isSignedIn && <Redirect to="/auth/signin"/>}
+                        <Dashboard items={dashboardItems} userPool={userPool} callback={() => {
+                            retrieveItems((items) =>
+                                setDashboardItems(items));
+                        }}/>
+                        <AddData userPool={userPool} callback={() => {
+                            retrieveItems((items) =>
+                                setDashboardItems(items));
+                        }}/>
                     </Route>
                 </Switch>
             </BrowserRouter>

@@ -1,8 +1,10 @@
 const AWS = require('aws-sdk');
 const dynamoDb = new AWS.DynamoDB({region: 'us-west-2', apiVersion: '2012-08-10'});
+const cisp = new AWS.CognitoIdentityServiceProvider({apiVersion: '2016-04-18'});
 
 module.exports.handler = (event, context, callback) => {
     const type = event.type;
+    const accessToken = event.accessToken;
 
     if (type === 'all') {
         const params = {
@@ -25,28 +27,39 @@ module.exports.handler = (event, context, callback) => {
             }
         });
     } else if (type === 'single') {
-        const params = {
-            TableName: 'CompareYourself',
-            Key: {
-                UserId: {
-                    S: 'user-0.7933751882582918'
+        const cispParams = {"AccessToken": accessToken};
+
+        cisp.getUser(cispParams, (err, result) => {
+            if (err) {
+                console.log(err);
+                callback(err);
+            }
+
+            const userId = result.UserAttributes[0].Value;
+
+            const params = {
+                TableName: 'CompareYourself',
+                Key: {
+                    UserId: {
+                        S: userId
+                    }
                 }
             }
-        }
 
-        dynamoDb.getItem(params, function (err, data) {
-            if (err) {
-                console.log("Error", err);
-                callback(err);
-            } else {
-                const item = {
-                    age: +data.Item.Age.N,
-                    height: +data.Item.Height.N,
-                    income: +data.Item.Income.N,
-                };
+            dynamoDb.getItem(params, function (err, data) {
+                if (err) {
+                    console.log("Error", err);
+                    callback(err);
+                } else {
+                    const item = {
+                        age: +data.Item.Age.N,
+                        height: +data.Item.Height.N,
+                        income: +data.Item.Income.N,
+                    };
 
-                callback(null, item);
-            }
+                    callback(null, item);
+                }
+            });
         });
     } else {
         callback('invalid type');

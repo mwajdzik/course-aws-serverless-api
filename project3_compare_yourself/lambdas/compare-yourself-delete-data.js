@@ -6,7 +6,7 @@ module.exports.handler = (event, context, callback) => {
         TableName: 'CompareYourself',
         Key: {
             UserId: {
-                S: 'user-0.7933751882582918'
+                S: event.userId
             }
         }
     }

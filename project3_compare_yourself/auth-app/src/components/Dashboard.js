@@ -10,6 +10,7 @@ import IconButton from '@material-ui/core/IconButton';
 import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import DeleteIcon from '@material-ui/icons/Delete';
+import compareYourselfApi from "../api/compare-yourself-api";
 
 const useStyles = makeStyles((theme) => ({
     '@global': {
@@ -36,15 +37,8 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function Dashboard({}) {
+export default function Dashboard({items, userPool, callback}) {
     const classes = useStyles();
-
-    const items = [
-        {age: 30, height: 180, income: 2500},
-        {age: 40, height: 190, income: 3500},
-        {age: 23, height: 170, income: 1500},
-        {age: 50, height: 160, income: 2900},
-    ]
 
     const renderedItems = items.map((item) => {
         return <ListItem key={item.age}>
@@ -55,7 +49,23 @@ export default function Dashboard({}) {
             </ListItemAvatar>
             <ListItemText primary={`Age: ${item.age}, Height: ${item.height}, Income: ${item.income}`}/>
             <ListItemSecondaryAction>
-                <IconButton edge="end" aria-label="delete" onClick={() => console.log("delete")}>
+                <IconButton edge="end" aria-label="delete" onClick={() => {
+                    userPool.getCurrentUser().getSession(async (err, session) => {
+                        if (err) {
+                            console.log(err);
+                            return;
+                        }
+
+                        const headers = {
+                            'Authorization': session.getIdToken().getJwtToken()
+                        }
+
+                        const response = await compareYourselfApi.delete('/dev/compare-yourself?accessToken=' + session.getAccessToken().getJwtToken(), {headers});
+                        console.log(response);
+
+                        callback();
+                    });
+                }}>
                     <DeleteIcon/>
                 </IconButton>
             </ListItemSecondaryAction>
@@ -63,7 +73,7 @@ export default function Dashboard({}) {
     });
 
     return (
-        <Container component="main" maxWidth="xs">
+        <Container component="main" maxWidth="sm">
             <div className={classes.paper}>
                 <List dense={false}>
                     {renderedItems}

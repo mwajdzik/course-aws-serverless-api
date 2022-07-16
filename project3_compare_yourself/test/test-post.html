@@ -6,13 +6,14 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <script>
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', 'https://geyismhux2.execute-api.us-west-2.amazonaws.com/dev/compare-yourself');
+        xhr.open('POST', 'https://im5ulfrr5b.execute-api.us-west-2.amazonaws.com/dev/compare-yourself');
 
         xhr.onreadystatechange = function (event) {
             console.log(event.target.response);
         }
 
         xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.setRequestHeader('Authorization', 'eyJraWQiOiJ1XC93SkVxWFQxXC9qMGhka2lBY0dBQkNCUHNUQVZFbFZmT1hBXC9BdFpMMXdvPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiI3MzI1ZmI1Ni1jY2Y0LTRhMWUtYWIwYy1jOGFlNDczZDdiMmMiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLnVzLXdlc3QtMi5hbWF6b25hd3MuY29tXC91cy13ZXN0LTJfNzZPb3RESlhrIiwiY29nbml0bzp1c2VybmFtZSI6Im1hY2llayIsIm9yaWdpbl9qdGkiOiIyZjY5ZDEwMC1hNmNlLTQ3Y2ItOTEwMC01MjEyYjg0OTUzYzEiLCJhdWQiOiIxMmdhaGpmODA4aWRvbjg5YmtlaGRhNWNwZCIsImV2ZW50X2lkIjoiOGJiM2U4NGQtMjQ2MC00MDE5LWFlYTgtNjFlZmZmZjQ2MWRmIiwidG9rZW5fdXNlIjoiaWQiLCJhdXRoX3RpbWUiOjE2NTc5NTgwMzUsImV4cCI6MTY1Nzk2MTYzNSwiaWF0IjoxNjU3OTU4MDM1LCJqdGkiOiIyZmQ0ODIwOC1mYzRjLTQ0Y2EtODEyZS0xYjZlN2QxMjYzZTAiLCJlbWFpbCI6ImFtdzA2MUBnbWFpbC5jb20ifQ.njmT_RhAH25UKNOcHvSlFe2qq_gaubOMd5zK3w5-AFTtQFFlG8ntEpWkLjALnOcI6D6ZsP7PVm82YJXYYaMzrtfCE31CmaVUxMrZOpzM1ae7S1ZaqMegOcYIoHFXqAd1s-DxAkIvfKFuHHjdUNyT4v7jq3ONeP-1tNA4vXZmDJEEzq_auTRibcH6XlCUgxyOrARajZJ3nQCg8FfvwZBPIHelJzdbABvKijsk57wifuAuToPLSXUNjDvUgUMIldxbOOHH2rT_VoWROeg3lWVMw_vfPIdOUoDvDymTr9uS-3RgcECkJtSuLGSyymAquJXJqwBYqMDX7thUEr7inRuBrg');
         xhr.send(JSON.stringify({"person": {"age": 23, "height": 180, "income": 1000}}));
     </script>
     <meta http-equiv="X-UA-Compatible" content="ie=edge">

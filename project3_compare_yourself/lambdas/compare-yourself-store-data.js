@@ -6,15 +6,15 @@ module.exports.handler = (event, context, callback) => {
         TableName: "CompareYourself",
         Item: {
             UserId: {
-                S: `user-${Math.random()}`
+                S: `${event.userId}`
             },
-            "Age": {
+            Age: {
                 N: `${event.age}`
             },
-            "Height": {
+            Height: {
                 N: `${event.height}`
             },
-            "Income": {
+            Income: {
                 N: `${event.income}`
             }
         },

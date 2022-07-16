@@ -23,7 +23,11 @@ data "template_file" "swagger_api" {
     compare_yourself_store_data : aws_lambda_function.compare_yourself_store_data.arn
     compare_yourself_delete_data : aws_lambda_function.compare_yourself_delete_data.arn
     compare_yourself_get_data : aws_lambda_function.compare_yourself_get_data.arn
+    aws_cognito_user_pool_id : "arn:aws:cognito-idp:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:userpool/${aws_cognito_user_pool.compare_yourself_pool.id}"
   }
+  depends_on = [
+    aws_cognito_user_pool.compare_yourself_pool
+  ]
 }
 
 resource "aws_api_gateway_deployment" "compare_yourself_deployment" {
@@ -170,8 +174,17 @@ resource "aws_dynamodb_table" "compare_yourself_dynamodb_table" {
 resource "aws_cognito_user_pool" "compare_yourself_pool" {
   name = "compare-yourself"
 
-  email_configuration {
-    from_email_address = "amw061@gmail.com"
+  alias_attributes         = ["preferred_username", "email"]
+  auto_verified_attributes = ["email"]
+
+  password_policy {
+    minimum_length = 6
+  }
+
+  verification_message_template {
+    default_email_option = "CONFIRM_WITH_CODE"
+    email_subject        = "Account Confirmation"
+    email_message        = "Your confirmation code is {####}"
   }
 }
 
@@ -180,5 +193,12 @@ resource "aws_cognito_user_pool_client" "compare_yourself_pool_client" {
 
   user_pool_id = aws_cognito_user_pool.compare_yourself_pool.id
 
-  generate_secret = false
+  generate_secret               = false
+  refresh_token_validity        = 90
+  prevent_user_existence_errors = "ENABLED"
+
+  explicit_auth_flows = [
+    "ALLOW_USER_SRP_AUTH",
+    "ALLOW_REFRESH_TOKEN_AUTH"
+  ]
 }
